@@ -1,5 +1,8 @@
 """
-Sudoku solver
+SudokuSolver class for Sudoku solver Python program.
+
+By: Kyle Yasumiishi
+Last updated: 2/24/2018
 """
 
 import unittest
@@ -18,6 +21,18 @@ EX_PUZZLE1 = [[8,4,0,0,0,6,7,0,0],[0,0,0,0,0,0,0,4,5],[0,0,0,0,0,8,0,0,0],
 EX_PUZZLE1_SOL = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
                   [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
                   [4,2,8,3,6,5,9,7,1],[7,3,5,1,2,9,6,8,4],[6,1,9,4,8,7,5,3,2]]
+
+EX_PUZZLE2 = [[0,0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
+
+EX_PUZZLE3 = [[0,0,1,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
+
+EX_PUZZLE4 = [[0,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
 
 class SudokuSolver:
     """
@@ -107,11 +122,57 @@ class SudokuSolver:
 
         return square_group
 
+    def get_cell_family(self, row, col):
+        """
+        Add value of every non-zero cell in a given cell's row, col, and 3x3 square groups
+        to the list cell_family. Returns cell_family.
+        """
+        cell_family = []
+
+        for cell in self.get_row_group(row):
+            if self.get_cell_num(cell[0], cell[1]) != 0:
+                val = self.get_cell_num(cell[0], cell[1])
+                cell_family.append(val)
+        for cell in self.get_col_group(col):
+            if self.get_cell_num(cell[0], cell[1]) != 0:
+                val = self.get_cell_num(cell[0], cell[1])
+                cell_family.append(val)
+        for cell in self.get_3x3_group(row, col):
+            if self.get_cell_num(cell[0], cell[1]) != 0:
+                val = self.get_cell_num(cell[0], cell[1])
+                cell_family.append(val)
+
+        return cell_family
+
+    def is_valid_cell(self, row, col):
+        """
+        This invariant evaluates whether the value of a cell in the Sudoku puzzle board 
+        is valid given the cell's position in its row, column, and 3x3 square.
+        Returns True if the cell is valid; False otherwise.
+        """
+        cell_val = self.get_cell_num(row, col)
+        
+        # Return T/F only for non-empty cells. Return None if cell's value is zero.
+        if cell_val != 0:
+            
+            # Returns True only if there are exactly three occurrences of cell_val
+            # (one for row, col, and 3x3 square) in the list cell_family. 
+            cell_family = self.get_cell_family(row, col)
+            if cell_family.count(cell_val) == 3:
+                return True
+            else:
+                return False
+
+
+
 
 ############################################################################################
 
 EX_0 = SudokuSolver(9, 9, EX_PUZZLE0)
 EX_1 = SudokuSolver(9, 9, EX_PUZZLE1)
+EX_2 = SudokuSolver(9, 9, EX_PUZZLE2)
+EX_3 = SudokuSolver(9, 9, EX_PUZZLE3)
+EX_4 = SudokuSolver(9, 9, EX_PUZZLE3)
 
 class TestSuite(unittest.TestCase):
     """
@@ -161,6 +222,17 @@ class TestSuite(unittest.TestCase):
         for cell in test_square_group:
             test_square_group_values.append(EX_1.get_cell_num(cell[0], cell[1]))
         self.assertEqual(test_square_group_values, [1, 0, 0, 0, 0, 2, 5, 7, 4], msg=str(test_square_group_values))
+
+    def test_is_valid_cell(self):
+        self.assertEqual(EX_0.is_valid_cell(0,0), None)
+        self.assertEqual(EX_1.is_valid_cell(0,0), True)
+        self.assertEqual(EX_1.is_valid_cell(0,2), None)
+        self.assertEqual(EX_1.is_valid_cell(4,6), True)
+        self.assertEqual(EX_2.is_valid_cell(0,2), False)
+        self.assertEqual(EX_2.is_valid_cell(0,3), None)
+        self.assertEqual(EX_3.is_valid_cell(0,2), False)
+        self.assertEqual(EX_4.is_valid_cell(0,2), False)
+
 
 ############################################################################################
 
