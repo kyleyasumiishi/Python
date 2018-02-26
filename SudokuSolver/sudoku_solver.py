@@ -88,11 +88,26 @@ class SudokuSolver:
                         col in range(self._puzzle_width) if self._puzzle_board[row][col] == 0]
         return empty_cells
 
+    def is_empty(self, row, col):
+        """
+        Return True if cell is empty; False otherwise.
+        """
+        if self.get_cell_num(row, col) == 0:
+            return True
+        else:
+            return False
+
     def set_cell(self, row, col, value):
         """
         Set the cell at position row, col to have the given value.
         """
         self._puzzle_board[row][col] = value
+
+    def unset_cell(self, row, col):
+        """
+        Set the cell at position row, col to have the value zero (i.e., empty cell).
+        """
+        self._puzzle_board[row][col] = 0
 
     def get_row_group(self, row):
         """
@@ -243,66 +258,97 @@ class SudokuSolver:
 #         empty_cells = obj.get_empty_cells()    
 #     return obj._puzzle_board
 
-EMPTY_CELL_NUM = -1
+# COUNT = 0
+# def solve_puzzle(obj):
+#     """
 
-def solve_puzzle(obj):
-    """
+#     """
+#     global COUNT
+#     COUNT += 1
+#     empty_cells = obj.get_empty_cells()
 
-    """
-    global EMPTY_CELL_NUM
+#     # Base case
+#     if len(empty_cells) == 0:
+#         return True
+#     # Recursive case
+
+#     # While there are empty cells (i.e., len(empty_cells) > 0):
+#     for empty_cell in empty_cells:
+#         cell = empty_cell
+        
+#         # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
+#         possible_vals = obj.get_possible_vals(cell[0], cell[1])
+
+#         # For each valid val, set the cell to val and recursively call solve_puzzle.
+#         if len(possible_vals) > 0:
+#             for val in possible_vals:
+#                 obj.set_cell(cell[0], cell[1], val)
+                
+#                 # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
+#                 # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
+#                 if solve_puzzle(obj):
+#                     return True
+
+#                 # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
+#                 else:
+#                     obj.set_cell(cell[0], cell[1], 0)
+            
+#             # After iterating through all of the possible_vals, if none of them produce a correct puzzle, return False.
+#             # if obj.get_cell_num(cell[0], cell[1]) == 0:
+#             #     return (False, EMPTY_CELL_NUM, "none of possible_vals produced correct puzzle", cell)
+
+#     return obj._puzzle_board
+
+
+def helper(obj, cell, val):
     empty_cells = obj.get_empty_cells()
-    EMPTY_CELL_NUM += 1
-
-    # Base case
+    # Base
     if len(empty_cells) == 0:
         return True
-    # Recursive case
-
-    # While there are empty cells (i.e., len(empty_cells) > 0):
-    # 1) Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
-    # 2) If there are none, return False;
-    # 3) Otherwise, iterate through these valid possible values. Specifically, for each val,
-    # set the cell to val and recursively call solve_puzzle. 
-    # 4) If solve_puzzle returns False, reset the cell to 0.
-    # 5) Otherwise, update empty_cells to empty_cells[1:] and break out of the loop. This shoudl
-    # cause the while loop to go again if there are additional empty_cells.
-    # 6) After the while loop, return the puzzle board.
-
-    while len(empty_cells) > 0:
-        cell = empty_cells[0]
-        
-        # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
-        possible_vals = obj.get_possible_vals(cell[0], cell[1])
-
-        # If there are no valid possible moves, return False.
-        if len(possible_vals) == 0:
-            return (False, EMPTY_CELL_NUM, "no valid possible moves", cell)
-
-        # Otherwise, iterate through these possible values. Specifically, for each val,
-        # set the cell to val and recursively call solve_puzzle.
-        else:
-            for val in possible_vals:
-                obj.set_cell(cell[0], cell[1], val)
+    # Recursive
+    else:
+        for empty_cell in empty_cells:
+                cell = empty_cell
                 
-                # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
-                # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
-                if solve_puzzle(obj):
-                    empty_cells = empty_cells[1:]
-                    break
+                # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
+                possible_vals = obj.get_possible_vals(cell[0], cell[1])
 
-                # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
-                else:
-                    obj.set_cell(cell[0], cell[1], 0)
-            
-            # After iterating through all of the possible_vals, if none of them produce a correct puzzle, return False.
-            if obj.get_cell_num(cell[0], cell[1]) == 0:
-                return (False, EMPTY_CELL_NUM, "none of possible_vals produced correct puzzle", cell)
+                # For each valid val, set the cell to val and recursively call solve_puzzle.
+                if len(possible_vals) > 0:
+                    for val in possible_vals:
+                        obj.set_cell(cell[0], cell[1], val)
+                        
+                        # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
+                        # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
+                        if helper(obj, cell, val):
+                            return True
 
-    return obj._puzzle_board
+                        # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
+                        else:
+                            obj.set_cell(cell[0], cell[1], 0)
 
 
+def solve_puzzle(obj):
 
+    empty_cells = obj.get_empty_cells()
 
+    for cell in empty_cells:
+        is_cell_empty = True
+        while is_cell_empty:
+            for val in ALL_VALS:
+                clone = obj.clone()
+
+                # set
+                clone.set_cell(cell[0], cell[1], val)
+
+                # explore
+                if clone.is_valid_cell(cell[0], cell[1]):
+                    if helper(clone, cell, val) == True:    # Maybe just need to give obj, not cell and val, since those area already in obj.
+                        obj.set_cell(cell[0], cell[1], val)
+                        is_cell_empty = False
+
+                # unset
+                clone.unset_cell(cell[0], cell[1])
 
 
 
