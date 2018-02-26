@@ -300,37 +300,37 @@ class SudokuSolver:
 #     return obj._puzzle_board
 
 
-def helper(obj, cell, val):
+def helper(obj):
     empty_cells = obj.get_empty_cells()
     # Base
     if len(empty_cells) == 0:
         return True
     # Recursive
     else:
-        for empty_cell in empty_cells:
-                cell = empty_cell
+        cell = empty_cells[0]
+        
+        # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
+        possible_vals = obj.get_possible_vals(cell[0], cell[1])
+
+        # For each valid val, set the cell to val and recursively call solve_puzzle.
+        if len(possible_vals) > 0:
+            for val in possible_vals:
+                obj.set_cell(cell[0], cell[1], val)
                 
-                # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
-                possible_vals = obj.get_possible_vals(cell[0], cell[1])
+                # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
+                # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
+                if helper(obj):
+                    return True
 
-                # For each valid val, set the cell to val and recursively call solve_puzzle.
-                if len(possible_vals) > 0:
-                    for val in possible_vals:
-                        obj.set_cell(cell[0], cell[1], val)
-                        
-                        # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
-                        # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
-                        if helper(obj, cell, val):
-                            return True
-
-                        # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
-                        else:
-                            obj.set_cell(cell[0], cell[1], 0)
+                # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
+                else:
+                    obj.set_cell(cell[0], cell[1], 0)
 
 
 def solve_puzzle(obj):
 
     empty_cells = obj.get_empty_cells()
+    print "empty_cells:", empty_cells
 
     for cell in empty_cells:
         is_cell_empty = True
@@ -343,12 +343,18 @@ def solve_puzzle(obj):
 
                 # explore
                 if clone.is_valid_cell(cell[0], cell[1]):
-                    if helper(clone, cell, val) == True:    # Maybe just need to give obj, not cell and val, since those area already in obj.
+                    if helper(clone) == True:    # Maybe just need to give obj, not cell and val, since those area already in obj.
                         obj.set_cell(cell[0], cell[1], val)
+                        print "Cell " + str(cell) + " has been updated with val: " + str(val)
                         is_cell_empty = False
 
                 # unset
                 clone.unset_cell(cell[0], cell[1])
+    
+    empty_cells = obj.get_empty_cells()
+    print "empty_cells:", empty_cells
+
+    return obj._puzzle_board
 
 
 
