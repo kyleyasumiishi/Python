@@ -10,6 +10,8 @@ import math
 
 # Constants whose values are lists representing unsolved Sudoku puzzle boards
 
+ALL_VALS = [1,2,3,4,5,6,7,8,9]
+
 EX_PUZZLE0 = [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
@@ -18,9 +20,9 @@ EX_PUZZLE1 = [[8,4,0,0,0,6,7,0,0],[0,0,0,0,0,0,0,4,5],[0,0,0,0,0,8,0,0,0],
               [1,0,0,0,9,0,4,5,7],[0,0,2,0,0,0,1,0,0],[5,7,4,0,1,0,0,0,8],
               [0,0,0,3,0,0,0,0,0],[7,3,0,0,0,0,0,0,0],[0,0,9,4,0,0,5,3,2]]
 
-EX_PUZZLE1_MOD = [[0,4,1,5,3,6,7,2,9],[3,9,6,2,0,1,8,4,5],[2,5,7,9,4,8,3,1,6],
-                  [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
-                  [4,2,8,3,6,5,9,7,1],[7,3,5,1,2,9,6,8,4],[6,1,9,0,8,7,5,3,2]]
+EX_PUZZLE1_MOD = [[0,4,1,5,3,6,0,2,9],[3,9,6,2,0,1,8,4,0],[2,0,7,9,4,0,3,1,6],
+                  [1,6,3,8,0,2,4,5,0],[0,8,2,7,5,4,1,0,3],[5,7,0,6,1,0,2,9,8],
+                  [4,2,8,3,0,5,0,7,1],[7,3,0,1,0,9,6,8,4],[6,1,0,0,8,7,5,3,2]]
 
 EX_PUZZLE1_SOL = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
                   [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
@@ -38,6 +40,8 @@ EX_PUZZLE4 = [[0,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
 
+EX_PUZZLE5 = [[4,3,0,8,2,0],[],[],[],[],[],[],[],[]]
+
 class SudokuSolver:
     """
     Class to keep track of the state of the Sudoku puzzle.
@@ -54,7 +58,6 @@ class SudokuSolver:
         """
         for row in range(self._puzzle_height):
             print self._puzzle_board[row]
-        print
 
         # return str(self._puzzle_board)
         return ""
@@ -165,6 +168,20 @@ class SudokuSolver:
         else:
             return False
 
+    def get_possible_vals(self, row, col):
+        """
+        Return a list of valid possible values for a given empty cell.
+        """
+        cell_family = self.get_cell_family(row, col)
+        possible_vals = list(set([val for val in ALL_VALS if val not in cell_family]))
+        valid_vals = []
+        for val in possible_vals:
+            clone = self.clone()
+            clone.set_cell(row, col, val)
+            if clone.is_valid_cell(row, col):
+                valid_vals.append(val)
+
+        return sorted(valid_vals)
 
     def clone(self):
         """
@@ -173,104 +190,124 @@ class SudokuSolver:
         return SudokuSolver(self.get_height(), self.get_width(), self._puzzle_board)
 
 
-# def solve_puzzle(obj):
-#     """
-
-#     """
+# def solve_puzzle_old(obj):
 
 #     empty_cells = obj.get_empty_cells()
 #     all_vals = [1,2,3,4,5,6,7,8,9]
 
-#     print
-#     # print "empty_cells:", empty_cells
 #     # Base case
-
 #     if len(empty_cells) == 0:
-#         return obj._puzzle_board
-
+#         return True
 #     # Recursive case
-#     else:
-#         for cell in empty_cells:
-#             print
-#             clone = obj.clone()
-#             print "clone:"
-#             print clone
-#             print
-#             row = cell[0]
-#             col = cell[1]
-#             cell_family = clone.get_cell_family(row, col)
-#             possible_vals = [val for val in all_vals if val not in cell_family]
-
-#             print "cell:", cell
-#             print "possible_vals:", possible_vals
-
-#             if len(possible_vals) > 0:
-#                 for val in possible_vals:
-#                     print
-#                     clone.set_cell(row, col, val)
-#                     print "val:", val
-#                     print "is_valid_cell", clone.is_valid_cell(row, col)
-#                     if clone.is_valid_cell(row, col):
-#                         if solve_puzzle(clone) != None:
-#                             obj.set_cell(row, col, val)
-#                             break
-#                         else:
-#                             return None
-#                     else:
-#                         return None
-#             else:
-#                 return None
+#     while len(empty_cells) > 0:
+#         current_empty_cell = empty_cells[0]
+#         current_cell_family = obj.get_cell_family(current_empty_cell[0], current_empty_cell[1])
+#         possible_vals = [val for val in all_vals if val not in current_cell_family]
+        
+#         # print "current_empty_cell:", current_empty_cell
+#         # print "possible_vals:", possible_vals
+        
+#         # If no possible_vals, backtrack
+#         if len(possible_vals) > 0:
             
-#         return obj._puzzle_board
+#             clone = obj.clone()
 
+#             # If no val in possible_vals lead to correct board, backtrack
+            
+#             while obj.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
+#                 for val in possible_vals:
+#                     clone.set_cell(current_empty_cell[0], current_empty_cell[1], val)
+                    
+#                     # print "clone:"
+#                     # print clone
+#                     # print "val:", val
+#                     # print "is_valid_cell:", clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1])
+#                     # print
+#                     # print "#########################"
+#                     # print
+
+#                     # If val makes board invalid, go to next val.
+#                     if clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1]):
+#                         if solve_puzzle(clone):
+#                             obj.set_cell(current_empty_cell[0],current_empty_cell[1], val)
+#                             empty_cells = obj.get_empty_cells()
+#                         else:
+#                             clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)
+#                     else:
+#                         clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)    # go to next val
+                
+#                 if clone.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
+#                     return ("No possible values result in solved board", clone._puzzle_board)    # backtrack
+#         else:
+#             return "No possible values exist"    # backtrack
+#         empty_cells = obj.get_empty_cells()    
+#     return obj._puzzle_board
+
+EMPTY_CELL_NUM = -1
 
 def solve_puzzle(obj):
+    """
 
+    """
+    global EMPTY_CELL_NUM
     empty_cells = obj.get_empty_cells()
-    all_vals = [1,2,3,4,5,6,7,8,9]
+    EMPTY_CELL_NUM += 1
 
     # Base case
     if len(empty_cells) == 0:
         return True
     # Recursive case
-    while len(empty_cells) > 0:
-        current_empty_cell = empty_cells[0]
-        current_cell_family = obj.get_cell_family(current_empty_cell[0], current_empty_cell[1])
-        possible_vals = [val for val in all_vals if val not in current_cell_family]
-        
-        print "puzzle:" 
-        print obj
-        print "current_empty_cell:", current_empty_cell
-        print "possible_vals:", possible_vals
-        
-        # If no possible_vals, backtrack
-        if len(possible_vals) > 0:
-            
-            clone = obj.clone()
 
-            # If no val in possible_vals lead to correct board, backtrack
-            for val in possible_vals:
-                clone.set_cell(current_empty_cell[0], current_empty_cell[1], val)
-                
-                print "val:", val
-                print "is_valid_cell:", clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1])
-                
-                # If val makes board invalid, go to next val.
-                if clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1]):
-                    if solve_puzzle(clone) != False:
-                        obj.set_cell(current_empty_cell[0],current_empty_cell[1])
-                        empty_cells = obj.get_empty_cells()
-                    else:
-                        clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)
-                else:
-                    pass    # go to next val
-            
-            if clone.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
-                return False    # backtrack
+    # While there are empty cells (i.e., len(empty_cells) > 0):
+    # 1) Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
+    # 2) If there are none, return False;
+    # 3) Otherwise, iterate through these valid possible values. Specifically, for each val,
+    # set the cell to val and recursively call solve_puzzle. 
+    # 4) If solve_puzzle returns False, reset the cell to 0.
+    # 5) Otherwise, update empty_cells to empty_cells[1:] and break out of the loop. This shoudl
+    # cause the while loop to go again if there are additional empty_cells.
+    # 6) After the while loop, return the puzzle board.
+
+    while len(empty_cells) > 0:
+        cell = empty_cells[0]
+        
+        # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
+        possible_vals = obj.get_possible_vals(cell[0], cell[1])
+
+        # If there are no valid possible moves, return False.
+        if len(possible_vals) == 0:
+            return (False, EMPTY_CELL_NUM, "no valid possible moves", cell)
+
+        # Otherwise, iterate through these possible values. Specifically, for each val,
+        # set the cell to val and recursively call solve_puzzle.
         else:
-            return False    # backtrack
-    print
+            for val in possible_vals:
+                obj.set_cell(cell[0], cell[1], val)
+                
+                # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
+                # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
+                if solve_puzzle(obj):
+                    empty_cells = empty_cells[1:]
+                    break
+
+                # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
+                else:
+                    obj.set_cell(cell[0], cell[1], 0)
+            
+            # After iterating through all of the possible_vals, if none of them produce a correct puzzle, return False.
+            if obj.get_cell_num(cell[0], cell[1]) == 0:
+                return (False, EMPTY_CELL_NUM, "none of possible_vals produced correct puzzle", cell)
+
     return obj._puzzle_board
+
+
+
+
+
+
+
+
+
 
 
 
@@ -333,6 +370,12 @@ class TestSuite(unittest.TestCase):
             test_square_group_values.append(EX_1.get_cell_num(cell[0], cell[1]))
         self.assertEqual(test_square_group_values, [1, 0, 0, 0, 0, 2, 5, 7, 4], msg=str(test_square_group_values))
 
+    def test_get_possible_vals(self):
+        self.assertEqual(EX_1.get_possible_vals(0,2), [1,3,5])
+        self.assertEqual(EX_1.get_possible_vals(5,5), [2,3])
+        self.assertEqual(EX_1.get_possible_vals(8,1), [1,6,8])
+
+
     def test_is_valid_cell(self):
         self.assertEqual(EX_0.is_valid_cell(0,0), True)
         self.assertEqual(EX_1.is_valid_cell(0,0), True)
@@ -343,17 +386,17 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(EX_3.is_valid_cell(0,2), False)
         self.assertEqual(EX_4.is_valid_cell(0,2), False)
 
-    # def test_solve_puzzle(self):
-    #     self.assertEqual(solve_puzzle(EX_1_MOD), EX_PUZZLE1_SOL)
-    #     self.assertEqual(solve_puzzle(EX_1), EX_PUZZLE1_SOL)
+    def test_solve_puzzle(self):
+        self.assertEqual(solve_puzzle(EX_1_MOD), EX_PUZZLE1_SOL)
+        self.assertEqual(solve_puzzle(EX_1), EX_PUZZLE1_SOL)
 
 
 ############################################################################################
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
-unittest.TextTestRunner(verbosity=2).run(suite)
+# suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
+# unittest.TextTestRunner(verbosity=2).run(suite)
 
-print EX_1.get_empty_cells()
+# print EX_1.get_empty_cells()
 
 print solve_puzzle(EX_1)
 # for row in range(len(ans)):
