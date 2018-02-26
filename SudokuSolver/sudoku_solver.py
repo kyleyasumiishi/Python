@@ -56,7 +56,8 @@ class SudokuSolver:
             print self._puzzle_board[row]
         print
 
-        return str(self._puzzle_board)
+        # return str(self._puzzle_board)
+        return ""
 
     def get_height(self):
         """
@@ -172,53 +173,104 @@ class SudokuSolver:
         return SudokuSolver(self.get_height(), self.get_width(), self._puzzle_board)
 
 
-def solve_puzzle(obj):
-    """
+# def solve_puzzle(obj):
+#     """
 
-    """
+#     """
+
+#     empty_cells = obj.get_empty_cells()
+#     all_vals = [1,2,3,4,5,6,7,8,9]
+
+#     print
+#     # print "empty_cells:", empty_cells
+#     # Base case
+
+#     if len(empty_cells) == 0:
+#         return obj._puzzle_board
+
+#     # Recursive case
+#     else:
+#         for cell in empty_cells:
+#             print
+#             clone = obj.clone()
+#             print "clone:"
+#             print clone
+#             print
+#             row = cell[0]
+#             col = cell[1]
+#             cell_family = clone.get_cell_family(row, col)
+#             possible_vals = [val for val in all_vals if val not in cell_family]
+
+#             print "cell:", cell
+#             print "possible_vals:", possible_vals
+
+#             if len(possible_vals) > 0:
+#                 for val in possible_vals:
+#                     print
+#                     clone.set_cell(row, col, val)
+#                     print "val:", val
+#                     print "is_valid_cell", clone.is_valid_cell(row, col)
+#                     if clone.is_valid_cell(row, col):
+#                         if solve_puzzle(clone) != None:
+#                             obj.set_cell(row, col, val)
+#                             break
+#                         else:
+#                             return None
+#                     else:
+#                         return None
+#             else:
+#                 return None
+            
+#         return obj._puzzle_board
+
+
+def solve_puzzle(obj):
 
     empty_cells = obj.get_empty_cells()
     all_vals = [1,2,3,4,5,6,7,8,9]
 
-    print
-    # print "empty_cells:", empty_cells
     # Base case
-
     if len(empty_cells) == 0:
-        return obj._puzzle_board
-
+        return True
     # Recursive case
-    else:
-        for cell in empty_cells:
-            print
-            clone = obj.clone()
-            print "clone:"
-            print clone
-            print
-            row = cell[0]
-            col = cell[1]
-            cell_family = clone.get_cell_family(row, col)
-            possible_vals = [val for val in all_vals if val not in cell_family]
-
-            print "cell:", cell
-            print "possible_vals:", possible_vals
-
-            for val in possible_vals:
-                print
-                clone.set_cell(row, col, val)
-                print "val:", val
-                if clone.is_valid_cell(row, col):
-                    if solve_puzzle(clone) != None:
-                        obj.set_cell(row, col, val)
-                        break
-                else:
-                    pass
+    while len(empty_cells) > 0:
+        current_empty_cell = empty_cells[0]
+        current_cell_family = obj.get_cell_family(current_empty_cell[0], current_empty_cell[1])
+        possible_vals = [val for val in all_vals if val not in current_cell_family]
+        
+        print "puzzle:" 
+        print obj
+        print "current_empty_cell:", current_empty_cell
+        print "possible_vals:", possible_vals
+        
+        # If no possible_vals, backtrack
+        if len(possible_vals) > 0:
             
-        return obj._puzzle_board
+            clone = obj.clone()
 
-
-
-
+            # If no val in possible_vals lead to correct board, backtrack
+            for val in possible_vals:
+                clone.set_cell(current_empty_cell[0], current_empty_cell[1], val)
+                
+                print "val:", val
+                print "is_valid_cell:", clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1])
+                
+                # If val makes board invalid, go to next val.
+                if clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1]):
+                    if solve_puzzle(clone) != False:
+                        obj.set_cell(current_empty_cell[0],current_empty_cell[1])
+                        empty_cells = obj.get_empty_cells()
+                    else:
+                        clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)
+                else:
+                    pass    # go to next val
+            
+            if clone.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
+                return False    # backtrack
+        else:
+            return False    # backtrack
+    print
+    return obj._puzzle_board
 
 
 
@@ -303,7 +355,7 @@ unittest.TextTestRunner(verbosity=2).run(suite)
 
 print EX_1.get_empty_cells()
 
-solve_puzzle(EX_1)
+print solve_puzzle(EX_1)
 # for row in range(len(ans)):
 #     print ans[row]
 # print
