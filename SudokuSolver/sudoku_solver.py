@@ -7,6 +7,7 @@ Last updated: 2/24/2018
 
 import unittest
 import math
+import copy
 
 # Constants whose values are lists representing unsolved Sudoku puzzle boards
 
@@ -23,6 +24,10 @@ EX_PUZZLE1 = [[8,4,0,0,0,6,7,0,0],[0,0,0,0,0,0,0,4,5],[0,0,0,0,0,8,0,0,0],
 EX_PUZZLE1_MOD = [[0,4,1,5,3,6,0,2,9],[3,9,6,2,0,1,8,4,0],[2,0,7,9,4,0,3,1,6],
                   [1,6,3,8,0,2,4,5,0],[0,8,2,7,5,4,1,0,3],[5,7,0,6,1,0,2,9,8],
                   [4,2,8,3,0,5,0,7,1],[7,3,0,1,0,9,6,8,4],[6,1,0,0,8,7,5,3,2]]
+
+EX_PUZZLE1_MOD2 = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
+                  [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
+                  [4,2,8,3,6,5,9,7,1],[7,3,5,1,2,9,6,8,4],[6,1,9,4,8,0,5,3,2]]
 
 EX_PUZZLE1_SOL = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
                   [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
@@ -202,102 +207,8 @@ class SudokuSolver:
         """
         Return a copy of the Sudoku puzzle.
         """
-        return SudokuSolver(self.get_height(), self.get_width(), self._puzzle_board)
+        return SudokuSolver(self.get_height(), self.get_width(), list(self._puzzle_board))
 
-
-# def solve_puzzle_old(obj):
-
-#     empty_cells = obj.get_empty_cells()
-#     all_vals = [1,2,3,4,5,6,7,8,9]
-
-#     # Base case
-#     if len(empty_cells) == 0:
-#         return True
-#     # Recursive case
-#     while len(empty_cells) > 0:
-#         current_empty_cell = empty_cells[0]
-#         current_cell_family = obj.get_cell_family(current_empty_cell[0], current_empty_cell[1])
-#         possible_vals = [val for val in all_vals if val not in current_cell_family]
-        
-#         # print "current_empty_cell:", current_empty_cell
-#         # print "possible_vals:", possible_vals
-        
-#         # If no possible_vals, backtrack
-#         if len(possible_vals) > 0:
-            
-#             clone = obj.clone()
-
-#             # If no val in possible_vals lead to correct board, backtrack
-            
-#             while obj.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
-#                 for val in possible_vals:
-#                     clone.set_cell(current_empty_cell[0], current_empty_cell[1], val)
-                    
-#                     # print "clone:"
-#                     # print clone
-#                     # print "val:", val
-#                     # print "is_valid_cell:", clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1])
-#                     # print
-#                     # print "#########################"
-#                     # print
-
-#                     # If val makes board invalid, go to next val.
-#                     if clone.is_valid_cell(current_empty_cell[0], current_empty_cell[1]):
-#                         if solve_puzzle(clone):
-#                             obj.set_cell(current_empty_cell[0],current_empty_cell[1], val)
-#                             empty_cells = obj.get_empty_cells()
-#                         else:
-#                             clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)
-#                     else:
-#                         clone.set_cell(current_empty_cell[0], current_empty_cell[1], 0)    # go to next val
-                
-#                 if clone.get_cell_num(current_empty_cell[0], current_empty_cell[1]) == 0:
-#                     return ("No possible values result in solved board", clone._puzzle_board)    # backtrack
-#         else:
-#             return "No possible values exist"    # backtrack
-#         empty_cells = obj.get_empty_cells()    
-#     return obj._puzzle_board
-
-# COUNT = 0
-# def solve_puzzle(obj):
-#     """
-
-#     """
-#     global COUNT
-#     COUNT += 1
-#     empty_cells = obj.get_empty_cells()
-
-#     # Base case
-#     if len(empty_cells) == 0:
-#         return True
-#     # Recursive case
-
-#     # While there are empty cells (i.e., len(empty_cells) > 0):
-#     for empty_cell in empty_cells:
-#         cell = empty_cell
-        
-#         # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
-#         possible_vals = obj.get_possible_vals(cell[0], cell[1])
-
-#         # For each valid val, set the cell to val and recursively call solve_puzzle.
-#         if len(possible_vals) > 0:
-#             for val in possible_vals:
-#                 obj.set_cell(cell[0], cell[1], val)
-                
-#                 # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
-#                 # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
-#                 if solve_puzzle(obj):
-#                     return True
-
-#                 # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
-#                 else:
-#                     obj.set_cell(cell[0], cell[1], 0)
-            
-#             # After iterating through all of the possible_vals, if none of them produce a correct puzzle, return False.
-#             # if obj.get_cell_num(cell[0], cell[1]) == 0:
-#             #     return (False, EMPTY_CELL_NUM, "none of possible_vals produced correct puzzle", cell)
-
-#     return obj._puzzle_board
 
 
 def helper(obj):
@@ -327,15 +238,32 @@ def helper(obj):
                     obj.set_cell(cell[0], cell[1], 0)
 
 
+# def solve_puzzle(obj):
+
+#     empty_cells = obj.get_empty_cells()
+
+#     for cell in empty_cells:
+#         for val in ALL_VALS:
+#             obj.set_cell(cell[0], cell[1], val)
+#             if obj.is_valid_cell(cell[0], cell[1]):
+#                 if helper(obj):    # Maybe just need to give obj, not cell and val, since those area already in obj.
+#                     obj.set_cell(cell[0], cell[1], val)
+#                     break 
+
+#     return obj._puzzle_board
+
+
 def solve_puzzle(obj):
 
     empty_cells = obj.get_empty_cells()
-    print "empty_cells:", empty_cells
+    
 
     for cell in empty_cells:
         is_cell_empty = True
-        while is_cell_empty:
+        while is_cell_empty == True:
             for val in ALL_VALS:
+                # print obj
+                # print obj.get_empty_cells()
                 clone = obj.clone()
 
                 # set
@@ -345,19 +273,19 @@ def solve_puzzle(obj):
                 if clone.is_valid_cell(cell[0], cell[1]):
                     if helper(clone) == True:    # Maybe just need to give obj, not cell and val, since those area already in obj.
                         obj.set_cell(cell[0], cell[1], val)
-                        print "Cell " + str(cell) + " has been updated with val: " + str(val)
-                        is_cell_empty = False
+                        print "Cell " + str(cell) + " has been updated with val: " + str(obj.get_cell_num(cell[0],cell[1]))
+                        is_cell_empty = False   # This isn't doing what's expected
+                        break 
 
-                # unset
+                # unset - what is the point of this? Why does the output get messed up without this?
+                # How and why does it affect the last element of empty_cells?
                 clone.unset_cell(cell[0], cell[1])
-    
+
     empty_cells = obj.get_empty_cells()
     print "empty_cells:", empty_cells
+    print obj
 
-    return obj._puzzle_board
-
-
-
+    return list(obj._puzzle_board)
 
 
 
@@ -369,6 +297,7 @@ def solve_puzzle(obj):
 EX_0 = SudokuSolver(9, 9, EX_PUZZLE0)
 EX_1 = SudokuSolver(9, 9, EX_PUZZLE1)
 EX_1_MOD = SudokuSolver(9, 9, EX_PUZZLE1_MOD)
+EX_1_MOD2 = SudokuSolver(9, 9, EX_PUZZLE1_MOD2)
 EX_2 = SudokuSolver(9, 9, EX_PUZZLE2)
 EX_3 = SudokuSolver(9, 9, EX_PUZZLE3)
 EX_4 = SudokuSolver(9, 9, EX_PUZZLE3)
@@ -439,18 +368,18 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(EX_4.is_valid_cell(0,2), False)
 
     def test_solve_puzzle(self):
-        self.assertEqual(solve_puzzle(EX_1_MOD), EX_PUZZLE1_SOL)
+        # self.assertEqual(solve_puzzle(EX_1_MOD), EX_PUZZLE1_SOL)
         self.assertEqual(solve_puzzle(EX_1), EX_PUZZLE1_SOL)
 
 
 ############################################################################################
 
-# suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
-# unittest.TextTestRunner(verbosity=2).run(suite)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
+unittest.TextTestRunner(verbosity=2).run(suite)
 
 # print EX_1.get_empty_cells()
 
-print solve_puzzle(EX_1)
+# print solve_puzzle(EX_1) == EX_PUZZLE1_SOL
 # for row in range(len(ans)):
 #     print ans[row]
 # print
