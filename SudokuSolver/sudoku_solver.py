@@ -2,7 +2,7 @@
 SudokuSolver class for Sudoku solver Python program.
 
 By: Kyle Yasumiishi
-Last updated: 2/24/2018
+Last updated: 2/27/2018
 """
 
 import unittest
@@ -238,54 +238,22 @@ def helper(obj):
                     obj.set_cell(cell[0], cell[1], 0)
 
 
-# def solve_puzzle(obj):
-
-#     empty_cells = obj.get_empty_cells()
-
-#     for cell in empty_cells:
-#         for val in ALL_VALS:
-#             obj.set_cell(cell[0], cell[1], val)
-#             if obj.is_valid_cell(cell[0], cell[1]):
-#                 if helper(obj):    # Maybe just need to give obj, not cell and val, since those area already in obj.
-#                     obj.set_cell(cell[0], cell[1], val)
-#                     break 
-
-#     return obj._puzzle_board
-
-
 def solve_puzzle(obj):
 
     empty_cells = obj.get_empty_cells()
-    
+    clone = obj.clone()
 
     for cell in empty_cells:
-        is_cell_empty = True
-        while is_cell_empty == True:
-            for val in ALL_VALS:
-                # print obj
-                # print obj.get_empty_cells()
-                clone = obj.clone()
-
-                # set
+        for val in ALL_VALS:
+            clone.set_cell(cell[0], cell[1], val)
+            if clone.is_valid_cell(cell[0], cell[1]) and helper(clone):
+                # if helper(obj):    
                 clone.set_cell(cell[0], cell[1], val)
-
-                # explore
-                if clone.is_valid_cell(cell[0], cell[1]):
-                    if helper(clone) == True:    # Maybe just need to give obj, not cell and val, since those area already in obj.
-                        obj.set_cell(cell[0], cell[1], val)
-                        print "Cell " + str(cell) + " has been updated with val: " + str(obj.get_cell_num(cell[0],cell[1]))
-                        is_cell_empty = False   # This isn't doing what's expected
-                        break 
-
-                # unset - what is the point of this? Why does the output get messed up without this?
-                # How and why does it affect the last element of empty_cells?
+                break 
+            else:
                 clone.unset_cell(cell[0], cell[1])
 
-    empty_cells = obj.get_empty_cells()
-    print "empty_cells:", empty_cells
-    print obj
-
-    return list(obj._puzzle_board)
+    return clone._puzzle_board
 
 
 
@@ -301,6 +269,7 @@ EX_1_MOD2 = SudokuSolver(9, 9, EX_PUZZLE1_MOD2)
 EX_2 = SudokuSolver(9, 9, EX_PUZZLE2)
 EX_3 = SudokuSolver(9, 9, EX_PUZZLE3)
 EX_4 = SudokuSolver(9, 9, EX_PUZZLE3)
+EX_5 = SudokuSolver(9, 9, EX_PUZZLE1)
 
 class TestSuite(unittest.TestCase):
     """
@@ -368,8 +337,8 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(EX_4.is_valid_cell(0,2), False)
 
     def test_solve_puzzle(self):
-        # self.assertEqual(solve_puzzle(EX_1_MOD), EX_PUZZLE1_SOL)
-        self.assertEqual(solve_puzzle(EX_1), EX_PUZZLE1_SOL)
+        EX_5_output = solve_puzzle(EX_5)
+        self.assertEqual(EX_5_output, EX_PUZZLE1_SOL)
 
 
 ############################################################################################
@@ -379,9 +348,9 @@ unittest.TextTestRunner(verbosity=2).run(suite)
 
 # print EX_1.get_empty_cells()
 
-# print solve_puzzle(EX_1) == EX_PUZZLE1_SOL
-# for row in range(len(ans)):
-#     print ans[row]
-# print
-# for row in range(len(EX_PUZZLE1_SOL)):
-#     print EX_PUZZLE1_SOL[row]
+# print EX_1
+
+# print EX_5
+# output = solve_puzzle(EX_5)
+# print output
+# print EX_1
