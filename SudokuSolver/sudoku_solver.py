@@ -163,8 +163,7 @@ class SudokuSolver():
         """
         Return a copy of the Sudoku puzzle.
         """
-        clone = deepcopy(self)
-        return clone
+        return deepcopy(self)
 
 #########################################################################
 
@@ -204,6 +203,4 @@ def solve_puzzle(obj):
             else:
                 obj.unset_cell(cell[0], cell[1])
     return None
-
-
 
