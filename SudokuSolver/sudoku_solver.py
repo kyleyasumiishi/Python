@@ -2,52 +2,23 @@
 SudokuSolver class for Sudoku solver Python program.
 
 By: Kyle Yasumiishi
-Last updated: 2/27/2018
+Last updated: 3/10/2018
 """
 
-import unittest
 import math
-import copy
+from copy import deepcopy
 
-# Constants whose values are lists representing unsolved Sudoku puzzle boards
+#########################################################################
+
+# CONSTANTS
 
 ALL_VALS = [1,2,3,4,5,6,7,8,9]
 
-EX_PUZZLE0 = [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
+#########################################################################
 
-EX_PUZZLE1 = [[8,4,0,0,0,6,7,0,0],[0,0,0,0,0,0,0,4,5],[0,0,0,0,0,8,0,0,0],
-              [1,0,0,0,9,0,4,5,7],[0,0,2,0,0,0,1,0,0],[5,7,4,0,1,0,0,0,8],
-              [0,0,0,3,0,0,0,0,0],[7,3,0,0,0,0,0,0,0],[0,0,9,4,0,0,5,3,2]]
+# SudokuSolver Class
 
-EX_PUZZLE1_MOD = [[0,4,1,5,3,6,0,2,9],[3,9,6,2,0,1,8,4,0],[2,0,7,9,4,0,3,1,6],
-                  [1,6,3,8,0,2,4,5,0],[0,8,2,7,5,4,1,0,3],[5,7,0,6,1,0,2,9,8],
-                  [4,2,8,3,0,5,0,7,1],[7,3,0,1,0,9,6,8,4],[6,1,0,0,8,7,5,3,2]]
-
-EX_PUZZLE1_MOD2 = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
-                  [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
-                  [4,2,8,3,6,5,9,7,1],[7,3,5,1,2,9,6,8,4],[6,1,9,4,8,0,5,3,2]]
-
-EX_PUZZLE1_SOL = [[8,4,1,5,3,6,7,2,9],[3,9,6,2,7,1,8,4,5],[2,5,7,9,4,8,3,1,6],
-                  [1,6,3,8,9,2,4,5,7],[9,8,2,7,5,4,1,6,3],[5,7,4,6,1,3,2,9,8],
-                  [4,2,8,3,6,5,9,7,1],[7,3,5,1,2,9,6,8,4],[6,1,9,4,8,7,5,3,2]]
-
-EX_PUZZLE2 = [[0,0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
-
-EX_PUZZLE3 = [[0,0,1,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
-
-EX_PUZZLE4 = [[0,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
-
-EX_PUZZLE5 = [[4,3,0,8,2,0],[],[],[],[],[],[],[],[]]
-
-class SudokuSolver:
+class SudokuSolver():
     """
     Class to keep track of the state of the Sudoku puzzle.
     """
@@ -61,11 +32,10 @@ class SudokuSolver:
         """
         Return a string representation of the grid for debugging.
         """
+        ans = ""
         for row in range(self._puzzle_height):
-            print self._puzzle_board[row]
-
-        # return str(self._puzzle_board)
-        return ""
+            ans += str(self._puzzle_board[row]) + "\n"
+        return ans
 
     def get_height(self):
         """
@@ -137,39 +107,26 @@ class SudokuSolver:
         Returns a list of cells in the same 3x3 square as the cell
         at position row, col.
         """
-        row0 = int(math.floor((3 * row) / self.get_height()) * 3)
+        # Rows
+        row0 = int(math.floor(row / 3) * 3)
         row1 = row0 + 1
         row2 = row0 + 2
-        col0 = int(math.floor((3 * col) / self.get_width()) * 3)
+        # Columns
+        col0 = int(math.floor(col / 3) * 3)
         col1 = col0 + 1
         col2 = col0 + 2
-
         square_group = [(row0,col0),(row0,col1),(row0,col2),
                         (row1,col0),(row1,col1),(row1,col2),
                         (row2,col0),(row2,col1),(row2,col2)]
-
         return square_group
 
     def get_cell_family(self, row, col):
         """
         Return list of every non-zero cell in a given cell's row, col, and 3x3 square groups.
         """
-        cell_family = []
-
-        for cell in self.get_row_group(row):
-            if self.get_cell_num(cell[0], cell[1]) != 0:
-                val = self.get_cell_num(cell[0], cell[1])
-                cell_family.append(val)
-        for cell in self.get_col_group(col):
-            if self.get_cell_num(cell[0], cell[1]) != 0:
-                val = self.get_cell_num(cell[0], cell[1])
-                cell_family.append(val)
-        for cell in self.get_3x3_group(row, col):
-            if self.get_cell_num(cell[0], cell[1]) != 0:
-                val = self.get_cell_num(cell[0], cell[1])
-                cell_family.append(val)
-
-        return cell_family
+        cells = self.get_row_group(row) + self.get_col_group(col) + self.get_3x3_group(row, col)
+        vals = [self.get_cell_num(cell[0], cell[1]) for cell in cells if self.get_cell_num(cell[0], cell[1]) != 0]
+        return vals
 
     def is_valid_cell(self, row, col):
         """
@@ -180,7 +137,6 @@ class SudokuSolver:
         """
         cell_val = self.get_cell_num(row, col)
         cell_family = self.get_cell_family(row, col)
-
         # Returns True if there are three occurrences of cell_val
         # (one for row, col, and 3x3 square) in cell_family. 
         if cell_family.count(cell_val) == 3 or cell_val == 0:
@@ -207,150 +163,47 @@ class SudokuSolver:
         """
         Return a copy of the Sudoku puzzle.
         """
-        return SudokuSolver(self.get_height(), self.get_width(), list(self._puzzle_board))
+        clone = deepcopy(self)
+        return clone
 
+#########################################################################
 
+# Functions to solve a Sudoku puzzle
 
-def helper(obj):
+def backtracker(obj):
+    """
+    Returns True if the given SudokuSolver object is solvable using recursive backtracking.
+    Helper function for solve_puzzle.
+    """
     empty_cells = obj.get_empty_cells()
     # Base
     if len(empty_cells) == 0:
         return True
     # Recursive
     else:
-        cell = empty_cells[0]
-        
-        # Find all valid possible values for the first element in empty_cells (i.e., empty_cells[0])
-        possible_vals = obj.get_possible_vals(cell[0], cell[1])
-
-        # For each valid val, set the cell to val and recursively call solve_puzzle.
+        current_cell = empty_cells[0]
+        possible_vals = obj.get_possible_vals(current_cell[0], current_cell[1])
         if len(possible_vals) > 0:
             for val in possible_vals:
-                obj.set_cell(cell[0], cell[1], val)
-                
-                # If solve_puzzle returns True, update empty_cells to empty_cells[1:] and break out of the loop.
-                # This should cause us to go back to the beginning of the while loop if there are additional empty_cells.
-                if helper(obj):
+                obj.set_cell(current_cell[0], current_cell[1], val)
+                if backtracker(obj):
                     return True
-
-                # Otherwise, reset the cell to 0 (i.e., empty), and go to the next val in possible_vals.
                 else:
-                    obj.set_cell(cell[0], cell[1], 0)
-
+                    obj.set_cell(current_cell[0], current_cell[1], 0)
 
 def solve_puzzle(obj):
-
+    """
+    Takes a SudokuSolver object and solves it. Returns None.
+    """
     empty_cells = obj.get_empty_cells()
-    clone = obj.clone()
-
     for cell in empty_cells:
         for val in ALL_VALS:
-            clone.set_cell(cell[0], cell[1], val)
-            if clone.is_valid_cell(cell[0], cell[1]) and helper(clone):
-                # if helper(obj):    
-                clone.set_cell(cell[0], cell[1], val)
+            obj.set_cell(cell[0], cell[1], val)
+            if obj.is_valid_cell(cell[0], cell[1]) and backtracker(obj):
                 break 
             else:
-                clone.unset_cell(cell[0], cell[1])
-
-    return clone._puzzle_board
-
+                obj.unset_cell(cell[0], cell[1])
+    return None
 
 
 
-
-
-############################################################################################
-
-EX_0 = SudokuSolver(9, 9, EX_PUZZLE0)
-EX_1 = SudokuSolver(9, 9, EX_PUZZLE1)
-EX_1_MOD = SudokuSolver(9, 9, EX_PUZZLE1_MOD)
-EX_1_MOD2 = SudokuSolver(9, 9, EX_PUZZLE1_MOD2)
-EX_2 = SudokuSolver(9, 9, EX_PUZZLE2)
-EX_3 = SudokuSolver(9, 9, EX_PUZZLE3)
-EX_4 = SudokuSolver(9, 9, EX_PUZZLE3)
-EX_5 = SudokuSolver(9, 9, EX_PUZZLE1)
-
-class TestSuite(unittest.TestCase):
-    """
-    Test cases
-    """
-
-    def test_get_3x3_group(self):
-        self.assertEqual(EX_0.get_3x3_group(5,2), [(3,0),(3,1),(3,2),(4,0),(4,1),(4,2),(5,0),(5,1),(5,2)], msg=str(EX_0.get_3x3_group(5,2)))
-        self.assertEqual(EX_0.get_3x3_group(6,2), [(6,0),(6,1),(6,2),(7,0),(7,1),(7,2),(8,0),(8,1),(8,2)], msg=str(EX_0.get_3x3_group(6,2)))
-        self.assertEqual(EX_0.get_3x3_group(4,4), [(3,3),(3,4),(3,5),(4,3),(4,4),(4,5),(5,3),(5,4),(5,5)], msg=str(EX_0.get_3x3_group(4,4)))
-        self.assertEqual(EX_0.get_3x3_group(8,7), [(6,6),(6,7),(6,8),(7,6),(7,7),(7,8),(8,6),(8,7),(8,8)], msg=str(EX_0.get_3x3_group(8,7)))
-        self.assertEqual(EX_0.get_3x3_group(0,8), [(0,6),(0,7),(0,8),(1,6),(1,7),(1,8),(2,6),(2,7),(2,8)], msg=str(EX_0.get_3x3_group(0,8)))
-
-    def test_get_col_group(self):
-        self.assertEqual(EX_0.get_col_group(0), [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0)], msg=str(EX_0.get_col_group(0)))
-        self.assertEqual(EX_0.get_col_group(1), [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1)], msg=str(EX_0.get_col_group(1)))
-        self.assertEqual(EX_0.get_col_group(3), [(0, 3), (1, 3), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3), (7, 3), (8, 3)], msg=str(EX_0.get_col_group(3)))
-        self.assertEqual(EX_0.get_col_group(6), [(0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6)], msg=str(EX_0.get_col_group(6)))
-        self.assertEqual(EX_0.get_col_group(8), [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8)], msg=str(EX_0.get_col_group(8)))
-
-    def test_get_row_group(self):
-        self.assertEqual(EX_0.get_row_group(0), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8)], msg=str(EX_0.get_row_group(0)))
-        self.assertEqual(EX_0.get_row_group(2), [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8)], msg=str(EX_0.get_row_group(2)))
-        self.assertEqual(EX_0.get_row_group(3), [(3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8)], msg=str(EX_0.get_row_group(3)))
-        self.assertEqual(EX_0.get_row_group(4), [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8)], msg=str(EX_0.get_row_group(4)))
-        self.assertEqual(EX_0.get_row_group(8), [(8, 0), (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8)], msg=str(EX_0.get_row_group(8)))
-
-    def test_get_cell_num(self):
-        self.assertEqual(EX_1.get_cell_num(2, 0), 0, msg="(2,0)")
-        self.assertEqual(EX_1.get_cell_num(2, 5), 8, msg="(2,5)")
-        self.assertEqual(EX_1.get_cell_num(4, 2), 2, msg="(4,2)")
-        self.assertEqual(EX_1.get_cell_num(4, 6), 1, msg="(4,6)")
-        self.assertEqual(EX_1.get_cell_num(7, 8), 0, msg="(7,8)")
-        self.assertEqual(EX_1.get_cell_num(8, 8), 2, msg="(8,8)")
-
-    def test_get_empty_cells(self):
-        self.assertEqual(EX_1.get_empty_cells(), [(0, 2), (0, 3), (0, 4), (0, 7), (0, 8), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), 
-                                                  (1, 5), (1, 6), (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 6), (2, 7), (2, 8), 
-                                                  (3, 1), (3, 2), (3, 3), (3, 5), (4, 0), (4, 1), (4, 3), (4, 4), (4, 5), (4, 7), 
-                                                  (4, 8), (5, 3), (5, 5), (5, 6), (5, 7), (6, 0), (6, 1), (6, 2), (6, 4), (6, 5), 
-                                                  (6, 6), (6, 7), (6, 8), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), 
-                                                  (8, 0), (8, 1), (8, 4), (8, 5)])
-
-    def test_3x3_group_values(self):
-        test_square_group = EX_1.get_3x3_group(4,2)
-        test_square_group_values = []
-        for cell in test_square_group:
-            test_square_group_values.append(EX_1.get_cell_num(cell[0], cell[1]))
-        self.assertEqual(test_square_group_values, [1, 0, 0, 0, 0, 2, 5, 7, 4], msg=str(test_square_group_values))
-
-    def test_get_possible_vals(self):
-        self.assertEqual(EX_1.get_possible_vals(0,2), [1,3,5])
-        self.assertEqual(EX_1.get_possible_vals(5,5), [2,3])
-        self.assertEqual(EX_1.get_possible_vals(8,1), [1,6,8])
-
-
-    def test_is_valid_cell(self):
-        self.assertEqual(EX_0.is_valid_cell(0,0), True)
-        self.assertEqual(EX_1.is_valid_cell(0,0), True)
-        self.assertEqual(EX_1.is_valid_cell(0,2), True)
-        self.assertEqual(EX_1.is_valid_cell(4,6), True)
-        self.assertEqual(EX_2.is_valid_cell(0,2), False)
-        self.assertEqual(EX_2.is_valid_cell(0,3), True)
-        self.assertEqual(EX_3.is_valid_cell(0,2), False)
-        self.assertEqual(EX_4.is_valid_cell(0,2), False)
-
-    def test_solve_puzzle(self):
-        EX_5_output = solve_puzzle(EX_5)
-        self.assertEqual(EX_5_output, EX_PUZZLE1_SOL)
-
-
-############################################################################################
-
-suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
-unittest.TextTestRunner(verbosity=2).run(suite)
-
-# print EX_1.get_empty_cells()
-
-# print EX_1
-
-# print EX_5
-# output = solve_puzzle(EX_5)
-# print output
-# print EX_1
