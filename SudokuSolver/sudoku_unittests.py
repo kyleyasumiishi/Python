@@ -2,7 +2,7 @@
 Tests for sudoku_solver
 
 By: Kyle Yasumiishi
-Last updated: 3/10/2018
+Last updated: 3/11/2018
 """
 
 import sudoku_solver as solver
@@ -71,15 +71,16 @@ EX_PUZZLE8_SOL = [[1,4,9,8,7,5,6,2,3],[7,3,2,4,6,1,9,5,8],[6,8,5,3,2,9,4,1,7],
 
 # SudokuSolver class instances used for testing
 
-EX_0 = solver.SudokuSolver(9, 9, EX_PUZZLE0)
-EX_1 = solver.SudokuSolver(9, 9, EX_PUZZLE1)
-EX_2 = solver.SudokuSolver(9, 9, EX_PUZZLE2)
-EX_3 = solver.SudokuSolver(9, 9, EX_PUZZLE3)
-EX_4 = solver.SudokuSolver(9, 9, EX_PUZZLE3)
-EX_5 = solver.SudokuSolver(9, 9, EX_PUZZLE5)
-EX_6 = solver.SudokuSolver(9, 9, EX_PUZZLE6)
-EX_7 = solver.SudokuSolver(9, 9, EX_PUZZLE7)
-EX_8 = solver.SudokuSolver(9, 9, EX_PUZZLE8)
+EX_0 = solver.SudokuSolver(EX_PUZZLE0)
+EX_1 = solver.SudokuSolver(EX_PUZZLE1)
+EX_2 = solver.SudokuSolver(EX_PUZZLE2)
+EX_3 = solver.SudokuSolver(EX_PUZZLE3)
+EX_4 = solver.SudokuSolver(EX_PUZZLE3)
+EX_5 = solver.SudokuSolver(EX_PUZZLE5)
+EX_6 = solver.SudokuSolver(EX_PUZZLE6)
+EX_7 = solver.SudokuSolver(EX_PUZZLE7)
+EX_8 = solver.SudokuSolver(EX_PUZZLE8)
+EX_9 = solver.SudokuSolver(EX_PUZZLE1)
 
 ############################################################################################
 
@@ -163,6 +164,9 @@ class TestSuite(unittest.TestCase):
         solver.solve_puzzle(EX_8)
         self.assertEqual(EX_8._puzzle_board, EX_PUZZLE8_SOL)
 
+    def test_clear_board(self):
+        EX_9.clear_board()
+        self.assertEqual(EX_9._puzzle_board, EX_PUZZLE0)
 
 ############################################################################################
 

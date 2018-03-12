@@ -2,7 +2,7 @@
 SudokuSolver class for Sudoku solver Python program.
 
 By: Kyle Yasumiishi
-Last updated: 3/10/2018
+Last updated: 3/11/2018
 """
 
 import math
@@ -12,7 +12,7 @@ from copy import deepcopy
 
 # CONSTANTS
 
-ALL_VALS = [1,2,3,4,5,6,7,8,9]
+ALL_VALS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 #########################################################################
 
@@ -23,10 +23,14 @@ class SudokuSolver():
     Class to keep track of the state of the Sudoku puzzle.
     """
 
-    def __init__(self, height, width, puzzle_board):
-        self._puzzle_height = height
-        self._puzzle_width = width
-        self._puzzle_board = puzzle_board
+    def __init__(self, puzzle_board=None):
+        self._puzzle_height = 9
+        self._puzzle_width = 9
+        if puzzle_board == None:
+            self._puzzle_board = [[0 for dummy_col in range(self._puzzle_width)]
+                                   for dummy_row in range(self._puzzle_height)]
+        else:
+            self._puzzle_board = puzzle_board
 
     def __str__(self):
         """
@@ -84,6 +88,13 @@ class SudokuSolver():
         """
         self._puzzle_board[row][col] = 0
 
+    def clear_board(self):
+        """
+        Sets the value of every cell to 0 (i.e., empty).
+        """
+        self._puzzle_board = [[0 for dummy_col in range(self.get_width())]
+                               for dummy_row in range(self.get_height())]
+
     def get_row_group(self, row):
         """
         Returns a list of cells in the given row of the puzzle board.
@@ -108,11 +119,11 @@ class SudokuSolver():
         at position row, col.
         """
         # Rows
-        row0 = int(math.floor(row / 3) * 3)
+        row0 = int(math.floor(row / math.sqrt(self.get_height())) * math.sqrt(self.get_height()))
         row1 = row0 + 1
         row2 = row0 + 2
         # Columns
-        col0 = int(math.floor(col / 3) * 3)
+        col0 = int(math.floor(col / math.sqrt(self.get_width())) * math.sqrt(self.get_width()))
         col1 = col0 + 1
         col2 = col0 + 2
         square_group = [(row0,col0),(row0,col1),(row0,col2),
