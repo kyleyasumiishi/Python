@@ -2,7 +2,7 @@
 SudokuSolver class for Sudoku solver Python program.
 
 By: Kyle Yasumiishi
-Last updated: 3/11/2018
+Last updated: 3/13/2018
 """
 
 import math
@@ -29,8 +29,11 @@ class SudokuSolver():
         if puzzle_board == None:
             self._puzzle_board = [[0 for dummy_col in range(self._puzzle_width)]
                                    for dummy_row in range(self._puzzle_height)]
+            self._initial_board = [[0 for dummy_col in range(self._puzzle_width)]
+                                   for dummy_row in range(self._puzzle_height)]
         else:
             self._puzzle_board = puzzle_board
+            self._initial_board = puzzle_board
 
     def __str__(self):
         """
